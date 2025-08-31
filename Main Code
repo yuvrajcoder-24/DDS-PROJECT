@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_PACKAGES 100
+
+typedef struct {
+    int packageID;
+    char senderName;
+    char type;
+    int priority;    // 1=Express, 2=Standard (lower number = higher priority)
+    int entryTime;
+} Package;
+
+Package queue[MAX_PACKAGES];
+int n = 0;
+
+// Function Declarations
+void addPackage();
+void displayQueue();
+void sortByPriorityTime();
+int searchBySender(char targetName[]);
+int searchByID(int targetID);
+
+int main() {
+    int choice, result, targetID;
+    char targetName;
+    printf("---- Postal Package Queue System ----\n");
+    while (1) {
+        printf("\nMenu:\n");
+        printf("1. Add Package\n");
+        printf("2. Display Queue\n");
+        printf("3. Sort by Priority & Entry Time\n");
+        printf("4. Search by Sender Name\n");
+        printf("5. Search by Package ID\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice); getchar();
+        switch (choice) {
+            case 1:
+                addPackage();
+                break;
+            case 2:
+                displayQueue();
+                break;
+            case 3:
+                sortByPriorityTime();
+                printf("Queue sorted by priority and entry time!\n");
+                break;
+            case 4:
+                printf("Enter sender name to search: ");
+                fgets(targetName, sizeof(targetName), stdin);
+                targetName[strcspn(targetName, "\n")] = 0;
+                result = searchBySender(targetName);
+                if (result >= 0) {
+                    printf("Package found at position %d:\n", result + 1);
+                    printf("ID: %d | Sender: %s | Type: %s | Priority: %d | Entry Time: %d\n",
+                        queue[result].packageID, queue[result].senderName, queue[result].type,
+                        queue[result].priority, queue[result].entryTime);
+                } else {
+                    printf("Sender not found!\n");
+                }
+                break;
+            case 5:
+                printf("Enter package ID to search: ");
+                scanf("%d", &targetID);
+                result = searchByID(targetID);
+                if (result >= 0) {
+                    printf("Package found at position %d:\n", result + 1);
+                    printf("ID: %d | Sender: %s | Type: %s | Priority: %d | Entry Time: %d\n",
+                        queue[result].packageID, queue[result].senderName, queue[result].type,
+                        queue[result].priority, queue[result].entryTime);
+                } else {
+                    printf("Package ID not found!\n");
+                }
+                break;
+            case 6:
+                printf("Exiting...\n");
+                exit(0);
+            default:
+                printf("Invalid option. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void addPackage() {
+    if (n >= MAX_PACKAGES) {
+        printf("Queue is full!\n");
+        return;
+    }
+    printf("Enter package ID: ");
+    scanf("%d", &queue[n].packageID);
+    getchar();
+    printf("Enter sender name: ");
+    fgets(queue[n].senderName, sizeof(queue[n].senderName), stdin);
+    queue[n].senderName[strcspn(queue[n].senderName, "\n")] = 0;
+    printf("Enter package type (Letter/Parcel/MoneyOrder/etc.): ");
+    fgets(queue[n].type, sizeof(queue[n].type), stdin);
+    queue[n].type[strcspn(queue[n].type, "\n")] = 0;
+    printf("Enter priority (1=Express, 2=Standard, etc.): ");
+    scanf("%d", &queue[n].priority);
+    printf("Enter entry time (e.g., 1045 for 10:45AM): ");
+    scanf("%d", &queue[n].entryTime);
+    n++;
+    printf("Package added to queue!\n");
+}
+
+void displayQueue() {
+    int i;
+    if (n == 0) {
+        printf("Queue is empty.\n");
+        return;
+    }
+    printf("\nCurrent Package Queue:\n");
+    printf("Pos | ID   | Sender        | Type        | Priority | EntryTime\n");
+    printf("---------------------------------------------------------------\n");
+    for (i = 0; i < n; i++) {
+        printf("%3d | %4d | %-13s | %-11s | %8d | %9d\n",
+               i+1, queue[i].packageID, queue[i].senderName, queue[i].type, queue[i].priority, queue[i].entryTime);
+    }
+}
+
+void sortByPriorityTime() {
+    int i, j;
+    Package temp;
+
+    // Lower priority number = higher priority
+    for (i = 0; i < n -1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            if ((queue[j].priority > queue[j+1].priority) ||
+                (queue[j].priority == queue[j+1].priority && queue[j].entryTime > queue[j+1].entryTime)) {
+                temp = queue[j];
+                queue[j] = queue[j+1];
+                queue[j+1] = temp;
+            }
+        }
+    }
+}
+
+int searchBySender(char targetName[]) {
+    int i;
+    for (i = 0; i < n; i++) {
+        if (strcasecmp(queue[i].senderName, targetName) == 0)
+            return i;
+    }
+    return -1;
+}
+
+int searchByID(int targetID) {
+    int i;
+    for (i = 0; i < n; i++) {
+        if (queue[i].packageID == targetID)
+            return i;
+    }
+    return -1;
+}
