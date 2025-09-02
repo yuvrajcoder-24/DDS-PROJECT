@@ -6,8 +6,8 @@
 
 typedef struct {
     int packageID;
-    char senderName;
-    char type;
+    char senderName[50];
+    char type[50];
     int priority;    // 1=Express, 2=Standard (lower number = higher priority)
     int entryTime;
 } Package;
@@ -24,7 +24,7 @@ int searchByID(int targetID);
 
 int main() {
     int choice, result, targetID;
-    char targetName;
+    char targetName[50];
     printf("---- Postal Package Queue System ----\n");
     while (1) {
         printf("\nMenu:\n");
@@ -35,7 +35,8 @@ int main() {
         printf("5. Search by Package ID\n");
         printf("6. Exit\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice); getchar();
+        scanf("%d", &choice);
+        getchar(); // consume newline
         switch (choice) {
             case 1:
                 addPackage();
@@ -125,8 +126,7 @@ void sortByPriorityTime() {
     int i, j;
     Package temp;
 
-    // Lower priority number = higher priority
-    for (i = 0; i < n -1; i++) {
+    for (i = 0; i < n - 1; i++) {
         for (j = 0; j < n - i - 1; j++) {
             if ((queue[j].priority > queue[j+1].priority) ||
                 (queue[j].priority == queue[j+1].priority && queue[j].entryTime > queue[j+1].entryTime)) {
@@ -155,3 +155,4 @@ int searchByID(int targetID) {
     }
     return -1;
 }
+
